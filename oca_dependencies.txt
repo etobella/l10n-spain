@@ -3,6 +3,7 @@
 account-financial-tools
 account-financial-reporting
 account-payment
+community-data-files
 bank-payment
 bank-statement-import
 partner-contact

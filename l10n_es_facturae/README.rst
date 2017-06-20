@@ -65,15 +65,10 @@ Problemas conocidos / Hoja de ruta
 ==================================
 
 * No está soportada la exportación de facturas rectificativas.
-* Sólo se exportan IVAs repercutidos.
-* No se controla el ancho de varios campos cuando se exportan.
+  Fallan las series.
 * El certificado y la contraseña de acceso al certificado no se guardan
   cifrados en la base de datos.
-* El fichero exportado debe subirse manualmente a la página de FACe. No está
-  implementado el envío por servicio web, ya que tienen que conceder permiso
-  expreso.
 * Ver la posibilidad de exportar varias facturas juntas.
-* Los apellidos de las personas físicas no se exportan.
 * Soportar formato Factura-E v3.2.1.
 
 Credits
@@ -90,6 +85,7 @@ Contributors
 * Comunitea (http://www.comunitea.com)
 * Pedro M. Baeza <pedro.baeza@serviciosbaeza.com>
 * Javi Melendez <javimelex@gmail.com>
+* Enric Tobella <etobella@creublanca.es>
 
 Maintainer
 ----------
