@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <template id="entity" inherit_id="l10n_es_facturae.entity">
+        <xpath expr="//RegistrationData" position="attributes">
+            <attribute name="t-if">True</attribute>
+        </xpath>
+        <xpath expr="//RegistrationData" position="inside">
+            <Book t-length="20" t-esc="partner.es_libro"/>
+            <RegisterOfCompaniesLocation t-length="20"
+                                         t-esc="partner.es_registro_mercantil"/>
+            <Sheet t-length="20" t-esc="partner.es_hoja"/>
+            <Folio t-length="20" t-esc="partner.es_folio"/>
+            <Section t-length="20" t-esc="partner.es_seccion"/>
+            <Volume t-length="20" t-esc="partner.es_tomo"/>
+            <AdditionalRegistrationData t-if="False"/>
+        </xpath>
+    </template>
+</odoo>
