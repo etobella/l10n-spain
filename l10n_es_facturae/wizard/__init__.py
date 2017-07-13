@@ -3,3 +3,4 @@
 
 from . import create_facturae
 from . import account_invoice_refund
+from . import account_invoice_integration_cancel

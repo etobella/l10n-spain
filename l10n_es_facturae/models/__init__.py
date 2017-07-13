@@ -7,3 +7,6 @@ from . import res_partner
 from . import account_tax
 from . import res_currency
 from . import account_invoice
+from . import account_invoice_integration
+from . import account_invoice_integration_method
+from . import account_invoice_integration_log

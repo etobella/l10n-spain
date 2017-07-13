@@ -3,7 +3,6 @@
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 import base64
-import logging
 
 from lxml import etree
 from odoo import exceptions
@@ -38,6 +37,9 @@ class TestL10nEsFacturae(common.TransactionCase):
             'organo_gestor': 'U00000038',
             'unidad_tramitadora': 'U00000038',
             'oficina_contable': 'U00000038',
+            'invoice_integration_method_ids': [(6, 0, [
+                self.env.ref('l10n_es_facturae.integration_demo').id
+            ])]
         })
         main_company = self.env.ref('base.main_company')
         main_company.vat = "ESA12345674"
@@ -108,7 +110,6 @@ class TestL10nEsFacturae(common.TransactionCase):
             'user_type_id': self.env.ref(
                 'account.data_account_type_revenue').id
         })
-
         self.invoice = self.env['account.invoice'].create({
             'partner_id': self.partner.id,
             'account_id': self.partner.property_account_receivable_id.id,
@@ -237,51 +238,20 @@ class TestL10nEsFacturae(common.TransactionCase):
             wizard.with_context(active_ids=[
                 self.invoice_02.id, self.invoice.id
             ]).create_facturae_file()
-
-    @staticmethod
-    def log(message):
-        logging.getLogger().error(message)
-
-    @staticmethod
-    def _text_compare(t1, t2):
-        if t1 == '*' or t2 == '*' or (not t1 and not t2):
-            return True
-        return (t1 or '').strip() == (t2 or '').strip()
-
-    def _xml_compare(self, tree1, tree2, reporter=None):
-        """lxml tree comparer based on Ian Bicking's
-        formencode implementation."""
-        if not reporter:
-            reporter = self.log
-        if tree1.tag != tree2.tag:
-            reporter(
-                'Tags do not match: %s and %s' % (tree1.tag, tree2.tag))
-            return False
-        for name, value in tree1.attrib.items():
-            if tree2.attrib.get(name) != value:
-                reporter('Attributes do not match: %s=%r, %s=%r'
-                         % (name, value, name, tree2.attrib.get(name)))
-                return False
-        for name in tree2.attrib.keys():
-            if name not in tree1.attrib:
-                reporter(
-                    'tree2 has an attribute tree1 is missing: %s' % name)
-                return False
-        if not self._text_compare(tree1.text, tree2.text):
-            reporter('text: %r != %r' % (tree1.text, tree2.text))
-            return False
-        if not self._text_compare(tree1.tail, tree2.tail):
-            reporter('tail: %r != %r' % (tree1.tail, tree2.tail))
-            return False
-        cl1 = tree1.getchildren()
-        cl2 = tree2.getchildren()
-        if len(cl1) != len(cl2):
-            reporter('children length differs for %s, %i != %i' % (
-                tree1.tag, len(cl1), len(cl2)))
-            return False
-        i = 0
-        for c1, c2 in zip(cl1, cl2):
-            i += 1
-            if not self._xml_compare(c1, c2, reporter=reporter):
-                return False
-        return True
+        self.assertTrue(self.invoice.can_integrate)
+        self.assertEqual(self.invoice.integration_count, 0)
+        integrations = self.invoice.action_integrations()
+        self.assertEqual(self.invoice.integration_count, 1)
+        integration = self.env['account.invoice.integration'].browse(
+            integrations['res_id'])
+        self.assertTrue(integration.can_send)
+        integration.send_action()
+        self.assertFalse(integration.can_send)
+        self.assertTrue(integration.can_update)
+        integration.update_action()
+        self.assertTrue(integration.can_update)
+        self.assertTrue(integration.can_cancel)
+        self.env['account.invoice.integration.cancel'].create({
+            'integration_id': integration.id
+        }).cancel_integration()
+        self.assertFalse(integration.can_cancel)

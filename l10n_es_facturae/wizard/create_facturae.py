@@ -64,7 +64,8 @@ class CreateFacturae(models.TransientModel):
             'datas': file,
             'datas_fname': file_name,
             'res_model': 'account.invoice',
-            'res_id': invoice.id
+            'res_id': invoice.id,
+            'mimetype': 'application/xml'
         })
         log.add(_("Export successful\n\nSummary:\nInvoice number: %s\n") %
                 invoice.number)

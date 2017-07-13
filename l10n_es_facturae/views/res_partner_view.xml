@@ -10,6 +10,7 @@
             <field name="arch" type="xml">
                 <field name='company_id' position="after">
                     <field name="facturae"/>
+                    <field name="invoice_integration_method_ids" widget="many2many_checkboxes"/>
                 </field>
                 <page name="sales_purchases" position="after">
                       <page string='FACe' attrs="{'invisible': [('facturae', '=', False)]}">

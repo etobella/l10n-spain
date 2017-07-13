@@ -10,7 +10,7 @@ import base64
 
 from lxml import etree
 
-from odoo import models, fields, tools, _
+from odoo import models, fields, tools, _, api
 from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 from odoo.exceptions import Warning as UserError, ValidationError
 
@@ -58,6 +58,63 @@ class AccountInvoice(models.Model):
                    'satisfechas. Auto de declaración de concurso')
         ]
     )
+
+    integration_ids = fields.One2many(
+        comodel_name='account.invoice.integration',
+        inverse_name='invoice_id',
+        copy=False
+    )
+
+    @api.depends('integration_ids')
+    def _compute_integrations_count(self):
+        self.integration_count = len(self.integration_ids)
+
+    integration_count = fields.Integer(
+        compute="_compute_integrations_count",
+        string='# of Integrations', copy=False, default=0)
+
+    @api.depends('integration_ids', 'partner_id')
+    def _compute_can_integrate(self):
+        for method in self.partner_id.invoice_integration_method_ids:
+            if not self.env['account.invoice.integration'].search(
+                    [('invoice_id', '=', self.id),
+                     ('method_id', '=', method.id)]):
+                self.can_integrate = True
+                return
+        self.can_integrate = False
+
+    can_integrate = fields.Boolean(compute="_compute_can_integrate")
+
+    @api.multi
+    def action_integrations(self):
+        self.ensure_one()
+        for method in self.partner_id.invoice_integration_method_ids:
+            if not self.env['account.invoice.integration'].search(
+                    [('invoice_id', '=', self.id),
+                     ('method_id', '=', method.id)]):
+                method.create_integration(self)
+        return self.action_view_integrations()
+
+    @api.multi
+    def action_view_integrations(self):
+        self.ensure_one()
+        action = self.env.ref(
+            'l10n_es_facturae.invoice_integration_action')
+        result = action.read()[0]
+        result['context'] = {'default_invoice_id': self.id}
+        integrations = self.env['account.invoice.integration'].search([
+            ('invoice_id', '=', self.id)
+        ])
+
+        if len(integrations) != 1:
+            result['domain'] = "[('id', 'in', " + \
+                               str(integrations.ids) + \
+                               ")]"
+        elif len(integrations) == 1:
+            res = self.env.ref('account.invoice.integration.form', False)
+            result['views'] = [(res and res.id or False, 'form')]
+            result['res_id'] = integrations.id
+        return result
 
     def get_exchange_rate(self, euro_rate, currency_rate):
         if not euro_rate and not currency_rate:

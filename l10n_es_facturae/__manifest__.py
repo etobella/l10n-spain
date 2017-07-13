@@ -31,13 +31,18 @@
         "account_banking_mandate"
     ],
     "data": [
+        "data/log_counter.xml",
+        "security/ir.model.access.csv",
         "views/res_partner_view.xml",
         "views/res_company.xml",
         "views/payment_mode_view.xml",
         "views/account_tax_view.xml",
         "views/report_facturae.xml",
         "wizard/create_facturae_view.xml",
-        "wizard/account_invoice_refund_view.xml"
+        "wizard/account_invoice_refund_view.xml",
+        "wizard/account_invoice_integration_cancel_view.xml",
+        "views/account_invoice_integration_view.xml",
+        "views/account_invoice_view.xml"
     ],
     "external_dependencies": {
         "bin": [
@@ -47,5 +52,8 @@
             "OpenSSL",
         ],
     },
+    "demo": [
+        "demo/integration_method.xml"
+    ],
     "installable": True,
 }
