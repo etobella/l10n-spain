@@ -45,9 +45,6 @@
         "views/account_invoice_view.xml"
     ],
     "external_dependencies": {
-        "bin": [
-            "java"
-        ],
         "python": [
             "OpenSSL",
         ],

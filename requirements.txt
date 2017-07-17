@@ -1,5 +1,9 @@
+lxml
 pycrypto
 unidecode
 unicodecsv
 requests
 xlrd
+pytz
+setuptools
+xmlsec
