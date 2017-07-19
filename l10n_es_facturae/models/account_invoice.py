@@ -172,10 +172,12 @@ class AccountInvoice(models.Model):
         def _sign_file(cert, password, request):
             min = 1
             max = 99999
-            signed_properties_id = 'Object%05d' % random.randint(min, max)
-            key_info_id = 'KeyInfo%05d' % random.randint(min, max)
             signature_id = 'Signature%05d' % random.randint(min, max)
+            signed_properties_id = signature_id + '-SignedProperties%05d' \
+                                                  % random.randint(min, max)
+            key_info_id = 'KeyInfo%05d' % random.randint(min, max)
             reference_id = 'Reference%05d' % random.randint(min, max)
+            object_id = 'Object%05d' % random.randint(min, max)
             etsi = 'http://uri.etsi.org/01903/v1.3.2#'
             sig_policy_identifier = 'http://www.facturae.es/' \
                                     'politica_de_firma_formato_facturae/' \
@@ -184,7 +186,7 @@ class AccountInvoice(models.Model):
             root = etree.fromstring(request)
             sign = xmlsec.template.create(
                 root,
-                c14n_method=xmlsec.constants.TransformExclC14N,
+                c14n_method=xmlsec.constants.TransformInclC14N,
                 sign_method=xmlsec.constants.TransformRsaSha1,
                 name=signature_id,
                 ns="ds"
@@ -201,7 +203,8 @@ class AccountInvoice(models.Model):
             xmlsec.template.add_reference(
                 sign,
                 xmlsec.constants.TransformSha1,
-                uri='#' + signed_properties_id
+                uri='#' + signed_properties_id,
+                type='http://uri.etsi.org/01903#SignedProperties'
             )
             xmlsec.template.add_reference(
                 sign,
@@ -220,13 +223,15 @@ class AccountInvoice(models.Model):
             )
             object_node = etree.SubElement(
                 sign,
-                etree.QName(xmlsec.constants.DSigNs, 'Object')
+                etree.QName(xmlsec.constants.DSigNs, 'Object'),
+                nsmap={'etsi': etsi},
+                attrib={'Id': object_id}
             )
             qualifying_properties = etree.SubElement(
                 object_node,
                 etree.QName(etsi, 'QualifyingProperties'),
                 attrib={
-                    'Target': signature_id
+                    'Target': '#' + signature_id
                 }
             )
             signed_properties = etree.SubElement(
@@ -240,7 +245,9 @@ class AccountInvoice(models.Model):
                 signed_properties,
                 etree.QName(etsi, 'SignedSignatureProperties')
             )
-            now = datetime.now().replace(microsecond=0, tzinfo=pytz.utc)
+            now = datetime.now().replace(
+                microsecond=0, tzinfo=pytz.utc
+            )
             etree.SubElement(
                 signed_signature_properties,
                 etree.QName(etsi, 'SigningTime')
@@ -268,7 +275,8 @@ class AccountInvoice(models.Model):
                 crypto.dump_certificate(
                     crypto.FILETYPE_ASN1,
                     certificate.get_certificate()
-                ))
+                )
+            )
             etree.SubElement(
                 cert_digest,
                 etree.QName(xmlsec.constants.DSigNs, 'DigestValue')
@@ -280,8 +288,9 @@ class AccountInvoice(models.Model):
             issuer = ''
             comps = certificate.get_certificate().get_issuer().get_components()
             for entry in comps:
-                issuer += ',' if len(issuer) > 0 else ''
-                issuer += entry[0] + '=' + entry[1]
+                issuer = entry[0] + '=' + entry[1] + (
+                    (',' + issuer) if len(issuer) > 0 else ''
+                )
             etree.SubElement(
                 issuer_serial,
                 etree.QName(xmlsec.constants.DSigNs, 'X509IssuerName')
@@ -365,7 +374,7 @@ class AccountInvoice(models.Model):
             root.append(sign)
             ctx.sign(sign)
             return etree.tostring(
-                root, exclusive=False, method='c14n'
+                root, xml_declaration=True, encoding='UTF-8'
             )
 
         logger = logging.getLogger("facturae")
@@ -376,7 +385,8 @@ class AccountInvoice(models.Model):
                                                    report.report_name)
         tree = etree.fromstring(
             xml_facturae, etree.XMLParser(remove_blank_text=True))
-        xml_facturae = etree.tostring(tree, method='c14n')
+        xml_facturae = etree.tostring(tree, xml_declaration=True,
+                                      encoding='UTF-8')
         self._validate_facturae(xml_facturae, logger)
         if self.company_id.facturae_cert and firmar_facturae:
             file_name = (_(
