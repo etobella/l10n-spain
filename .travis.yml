@@ -37,13 +37,6 @@ virtualenv:
 install:
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
-  - git clone https://github.com/lsh123/xmlsec.git ${HOME}/xmlsec
-  - (cd ${HOME}/xmlsec ; sh autogen.sh)
-  - make -C ${HOME}/xmlsec
-  - export PATH=${HOME}/xmlsec/apps:${PATH}
-  - cd ${HOME}
-  - export LD_LIBRARY_PATH=/usr/local/lib:${LD_LIBRARY_PATH}
-  - pip install xmlsec
   - travis_install_nightly
 
 script:
