@@ -29,4 +29,4 @@ class PaymentMode(models.Model):
             ('17', '[17] Cheque bancario'),
             ('18', '[18] Pago contra reembolso'),
             ('19', '[19] Pago mediante tarjeta'),
-        ], string="FACe code", default='04')
+        ], string="Facturae code", default='04')

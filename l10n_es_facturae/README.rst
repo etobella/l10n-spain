@@ -48,7 +48,7 @@ Configuración
 =============
 
 * Es necesario ir a los modos de pago e indicar su correspondencia con los
-  códigos de FACe.
+  códigos de Facturae.
 * La dirección a la que se remite la factura de venta que queremos exportar
   debe estar marcada como facturae y debe tener cubiertos los datos de
   Oficina contable, Órgano gestor y Unidad tramitadora.
@@ -64,7 +64,7 @@ denominado "Crear fichero Factura-E"
 
 .. image:: https://odoo-community.org/website/image/ir.attachment/5784_f2813bd/datas
    :alt: Try me on Runbot
-   :target: https://runbot.odoo-community.org/runbot/189/8.0
+   :target: https://runbot.odoo-community.org/runbot/189/10.0
 
 Problemas conocidos / Hoja de ruta
 ==================================

@@ -28,7 +28,7 @@ class AccountInvoiceIntegration(models.Model):
 
     attachment_id = fields.Many2one(
         comodel_name='ir.attachment',
-        string="Principal file"
+        string="Main file"
     )
 
     attachment_ids = fields.Many2many(

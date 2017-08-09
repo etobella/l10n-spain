@@ -19,7 +19,6 @@ except(ImportError, IOError) as err:
     logging.info(err)
 
 from odoo import models, fields, tools, _, api
-from odoo.tools import DEFAULT_SERVER_DATETIME_FORMAT as DATETIME_FORMAT
 from odoo.exceptions import Warning as UserError, ValidationError
 
 
@@ -126,15 +125,15 @@ class AccountInvoice(models.Model):
 
     def get_exchange_rate(self, euro_rate, currency_rate):
         if not euro_rate and not currency_rate:
-            return datetime.today().strftime('%Y-%m-%d')
+            return fields.Datetime.now().strftime('%Y-%m-%d')
         if not currency_rate:
-            return datetime.strptime(euro_rate.name,
-                                     DATETIME_FORMAT).strftime('%Y-%m-%d')
+            return fields.Datetime.from_string(euro_rate.name
+                                               ).strftime('%Y-%m-%d')
         if not euro_rate:
-            return datetime.strptime(currency_rate.name,
-                                     DATETIME_FORMAT).strftime('%Y-%m-%d')
-        currency_date = datetime.strptime(currency_rate.name, DATETIME_FORMAT)
-        euro_date = datetime.strptime(currency_rate.name, DATETIME_FORMAT)
+            return fields.Datetime.from_string(currency_rate.name
+                                               ).strftime('%Y-%m-%d')
+        currency_date = fields.Datetime.from_string(currency_rate.name)
+        euro_date = fields.Datetime.from_string(currency_rate.name)
         if currency_date < euro_date:
             return currency_date.strftime('%Y-%m-%d')
         return euro_date.strftime('%Y-%m-%d')
