@@ -32,6 +32,7 @@
     ],
     "data": [
         "data/log_counter.xml",
+        "data/account_tax_template.xml",
         "security/ir.model.access.csv",
         "views/res_partner_view.xml",
         "views/res_company.xml",
