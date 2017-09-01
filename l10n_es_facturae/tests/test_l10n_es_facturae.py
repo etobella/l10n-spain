@@ -14,13 +14,15 @@ from OpenSSL import crypto
 class TestL10nEsFacturae(common.TransactionCase):
     def setUp(self):
         super(TestL10nEsFacturae, self).setUp()
-        self.tax = self.env['account.tax'].create({
+        self.taxes = self.env['account.tax'].create({
             'name': 'Test tax',
             'amount_type': 'percent',
             'amount': 21,
             'type_tax_use': 'sale',
             'facturae_code': '01',
         })
+
+
         self.state = self.env['res.country.state'].create({
             'name': 'Ciudad Real',
             'code': '13',
