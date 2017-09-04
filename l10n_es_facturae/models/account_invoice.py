@@ -155,6 +155,9 @@ class AccountInvoice(models.Model):
                                         '%s') % line.name)
         if not self.partner_id.vat:
             raise ValidationError(_('Partner vat not provided'))
+        if not self.company_id.vat:
+            raise ValidationError(_('The vat of %s not provided') %
+                                  self.company_id.name)
         if len(self.partner_id.vat) < 3:
             raise ValidationError(_('Partner vat is too small'))
         if not self.partner_id.state_id:

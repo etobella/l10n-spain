@@ -208,7 +208,7 @@
                                 </t>
                                 <SpecialTaxableBase t-if="False"/>
                                 <SpecialTaxAmount t-if="False"/>
-                                <t t-if="line_tax.facturae_type == 'equivalencesurcharge'">
+                                <t t-if="tax_line.tax_id.facturae_type == 'equivalencesurcharge'">
                                     <EquivalenceSurcharge t-esc="tax_line.tax_id.amount"/>
                                     <EquivalenceSurchargeAmount>
                                         <TotalAmount t-esc="'%.2f' % tax_line.tax_id.amount"/>
@@ -220,7 +220,7 @@
                     </TaxesOutputs>
                     <TaxesWithheld t-if="withheld">
                         <t t-foreach="invoice.tax_line_ids" t-as="tax_line">
-                            <Tax t-if="tax_line.tax_id.amount &lt; 0 and line_tax.facturae_type == 'taxtypecode'">
+                            <Tax t-if="tax_line.tax_id.amount &lt; 0 and tax_line.tax_id.facturae_type == 'taxtypecode'">
                                 <TaxTypeCode t-esc="tax_line.tax_id.facturae_code"/>
                                 <TaxRate t-esc="'%.2f' % (-tax_line.tax_id.amount)"/>
                                 <TaxableBase>
