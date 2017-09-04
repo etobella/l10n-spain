@@ -194,7 +194,7 @@
                     <TaxesOutputs>
                         <t t-foreach="invoice.tax_line_ids" t-as="tax_line">
                             <Tax t-if="tax_line.tax_id.amount &gt;=0">
-                                <t t-if="line_tax.facturae_type == 'taxtypecode'">
+                                <t t-if="tax_line.tax_id.facturae_type == 'taxtypecode'">
                                     <TaxTypeCode t-esc="tax_line.tax_id.facturae_code"/>
                                     <TaxRate t-esc="'%.2f' % (tax_line.tax_id.amount)"/>
                                     <TaxableBase>

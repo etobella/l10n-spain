@@ -149,8 +149,6 @@ class AccountInvoice(models.Model):
                 'correction_method']['selection'])[self.correction_method]
 
     def validate_facturae_fields(self):
-        if not self.tax_line_ids:
-            raise ValidationError(_('Taxes not provided.'))
         for line in self.invoice_line_ids:
             if not line.invoice_line_tax_ids:
                 raise ValidationError(_('Taxes not provided in invoice line '
