@@ -230,10 +230,8 @@ class TestL10nEsFacturae(common.TransactionCase):
         self.assertEqual(len(generated_facturae.xpath('//ds:Signature',
                                                       namespaces={'ds': ns})),
                          1)
-        ctx = xmlsec.SignatureContext()
-        tree = etree.parse(generated_facturae)
-        verification_error = False
-        node = tree.find(".//ds:Signature")
+
+        node = generated_facturae.find(".//ds:Signature", {'ds': ns})
         ctx = xmlsec.SignatureContext()
         certificate = crypto.load_pkcs12(
             base64.b64decode(main_company.facturae_cert), 'password')
@@ -243,13 +241,17 @@ class TestL10nEsFacturae(common.TransactionCase):
             certificate.export(),
             format=xmlsec.constants.KeyDataFormatPkcs12
         )
-
+        verification_error = False
+        error_message = ''
         try:
             ctx.verify(node)
-        except Exception:
+        except Exception as e:
             verification_error = True
+            error_message = e.message
             pass
-        self.assertEquals(verification_error, False)
+        self.assertEquals(verification_error, False,
+                          'Error found during verification of the signature of '
+                          'the invoice: %s' % error_message)
 
         motive = 'Description motive'
         refund = self.env['account.invoice.refund'].create(
