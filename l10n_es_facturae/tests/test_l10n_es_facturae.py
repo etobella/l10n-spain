@@ -250,8 +250,8 @@ class TestL10nEsFacturae(common.TransactionCase):
             error_message = e.message
             pass
         self.assertEquals(verification_error, False,
-                          'Error found during verification of the signature of '
-                          'the invoice: %s' % error_message)
+                          'Error found during verification of the signature of'
+                          ' the invoice: %s' % error_message)
 
         motive = 'Description motive'
         refund = self.env['account.invoice.refund'].create(
