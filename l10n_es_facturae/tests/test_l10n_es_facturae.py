@@ -236,11 +236,6 @@ class TestL10nEsFacturae(common.TransactionCase):
         certificate = crypto.load_pkcs12(
             base64.b64decode(main_company.facturae_cert), 'password')
         certificate.set_ca_certificates(None)
-
-        ctx.key = xmlsig.Key.from_memory(
-            certificate.export(),
-            format=xmlsig.constants.KeyDataFormatPkcs12
-        )
         verification_error = False
         error_message = ''
         try:
@@ -249,9 +244,11 @@ class TestL10nEsFacturae(common.TransactionCase):
             verification_error = True
             error_message = e.message
             pass
-        self.assertEquals(verification_error, False,
-                          'Error found during verification of the signature of '
-                          'the invoice: %s' % error_message)
+        self.assertEquals(
+            verification_error,
+            False,
+            'Error found during verification of the signature of ' +
+            'the invoice: %s' % error_message)
 
         motive = 'Description motive'
         refund = self.env['account.invoice.refund'].create(

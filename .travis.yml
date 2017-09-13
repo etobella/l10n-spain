@@ -33,7 +33,6 @@ virtualenv:
   system_site_packages: true
 
 install:
-  - pip install git+https://github.com/etobella/python-xmlsig
   - git clone https://github.com/OCA/maintainer-quality-tools.git ${HOME}/maintainer-quality-tools
   - export PATH=${HOME}/maintainer-quality-tools/travis:${PATH}
   - travis_install_nightly
