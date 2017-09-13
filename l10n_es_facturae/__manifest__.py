@@ -48,6 +48,7 @@
     "external_dependencies": {
         "python": [
             "OpenSSL",
+            "xmlsig"
         ],
     },
     "demo": [

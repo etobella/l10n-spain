@@ -11,7 +11,7 @@ from odoo import exceptions
 from odoo.tests import common
 from OpenSSL import crypto
 try:
-    import xmlsec
+    import xmlsig
 except(ImportError, IOError) as err:
     logging.info(err)
 
@@ -232,14 +232,14 @@ class TestL10nEsFacturae(common.TransactionCase):
                          1)
 
         node = generated_facturae.find(".//ds:Signature", {'ds': ns})
-        ctx = xmlsec.SignatureContext()
+        ctx = xmlsig.SignatureContext()
         certificate = crypto.load_pkcs12(
             base64.b64decode(main_company.facturae_cert), 'password')
         certificate.set_ca_certificates(None)
 
-        ctx.key = xmlsec.Key.from_memory(
+        ctx.key = xmlsig.Key.from_memory(
             certificate.export(),
-            format=xmlsec.constants.KeyDataFormatPkcs12
+            format=xmlsig.constants.KeyDataFormatPkcs12
         )
         verification_error = False
         error_message = ''

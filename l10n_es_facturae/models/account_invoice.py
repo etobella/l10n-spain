@@ -13,7 +13,7 @@ import urllib2
 import logging
 
 try:
-    import xmlsec
+    import xmlsig
     from OpenSSL import crypto
 except(ImportError, IOError) as err:
     logging.info(err)
@@ -210,46 +210,45 @@ class AccountInvoice(models.Model):
                                     'politica_de_firma_formato_facturae_v3_1' \
                                     '.pdf'
             root = etree.fromstring(request)
-            sign = xmlsec.template.create(
-                root,
-                c14n_method=xmlsec.constants.TransformInclC14N,
-                sign_method=xmlsec.constants.TransformRsaSha1,
+            sign = xmlsig.template.create(
+                c14n_method=xmlsig.constants.TransformInclC14N,
+                sign_method=xmlsig.constants.TransformRsaSha1,
                 name=signature_id,
                 ns="ds"
             )
-            key_info = xmlsec.template.ensure_key_info(
+            key_info = xmlsig.template.ensure_key_info(
                 sign,
                 id=key_info_id
             )
-            x509_data = xmlsec.template.add_x509_data(key_info)
-            xmlsec.template.x509_data_add_certificate(x509_data)
-            xmlsec.template.add_key_value(key_info)
+            x509_data = xmlsig.template.add_x509_data(key_info)
+            xmlsig.template.x509_data_add_certificate(x509_data)
+            xmlsig.template.add_key_value(key_info)
             certificate = crypto.load_pkcs12(base64.b64decode(cert), password)
             certificate.set_ca_certificates(None)
-            xmlsec.template.add_reference(
+            xmlsig.template.add_reference(
                 sign,
-                xmlsec.constants.TransformSha1,
+                xmlsig.constants.TransformSha1,
                 uri='#' + signed_properties_id,
                 type='http://uri.etsi.org/01903#SignedProperties'
             )
-            xmlsec.template.add_reference(
+            xmlsig.template.add_reference(
                 sign,
-                xmlsec.constants.TransformSha1,
+                xmlsig.constants.TransformSha1,
                 uri='#' + key_info_id
             )
-            ref = xmlsec.template.add_reference(
+            ref = xmlsig.template.add_reference(
                 sign,
-                xmlsec.constants.TransformSha1,
+                xmlsig.constants.TransformSha1,
                 uri="",
                 id=reference_id
             )
-            xmlsec.template.add_transform(
+            xmlsig.template.add_transform(
                 ref,
-                xmlsec.constants.TransformEnveloped
+                xmlsig.constants.TransformEnveloped
             )
             object_node = etree.SubElement(
                 sign,
-                etree.QName(xmlsec.constants.DSigNs, 'Object'),
+                etree.QName(xmlsig.constants.DSigNs, 'Object'),
                 nsmap={'etsi': etsi},
                 attrib={'Id': object_id}
             )
@@ -292,7 +291,7 @@ class AccountInvoice(models.Model):
             )
             etree.SubElement(
                 cert_digest,
-                etree.QName(xmlsec.constants.DSigNs, 'DigestMethod'),
+                etree.QName(xmlsig.constants.DSigNs, 'DigestMethod'),
                 attrib={
                     'Algorithm': 'http://www.w3.org/2000/09/xmldsig#sha1'
                 }
@@ -305,7 +304,7 @@ class AccountInvoice(models.Model):
             )
             etree.SubElement(
                 cert_digest,
-                etree.QName(xmlsec.constants.DSigNs, 'DigestValue')
+                etree.QName(xmlsig.constants.DSigNs, 'DigestValue')
             ).text = base64.b64encode(hash_cert.digest())
             issuer_serial = etree.SubElement(
                 signing_certificate_cert,
@@ -319,11 +318,11 @@ class AccountInvoice(models.Model):
                 )
             etree.SubElement(
                 issuer_serial,
-                etree.QName(xmlsec.constants.DSigNs, 'X509IssuerName')
+                etree.QName(xmlsig.constants.DSigNs, 'X509IssuerName')
             ).text = issuer
             etree.SubElement(
                 issuer_serial,
-                etree.QName(xmlsec.constants.DSigNs, 'X509SerialNumber')
+                etree.QName(xmlsig.constants.DSigNs, 'X509SerialNumber')
             ).text = str(certificate.get_certificate().get_serial_number())
             signature_policy_identifier = etree.SubElement(
                 signed_signature_properties,
@@ -351,7 +350,7 @@ class AccountInvoice(models.Model):
             )
             etree.SubElement(
                 sig_policy_hash,
-                etree.QName(xmlsec.constants.DSigNs, 'DigestMethod'),
+                etree.QName(xmlsig.constants.DSigNs, 'DigestMethod'),
                 attrib={
                     'Algorithm': 'http://www.w3.org/2000/09/xmldsig#sha1'
                 }
@@ -359,7 +358,7 @@ class AccountInvoice(models.Model):
             remote = urllib2.urlopen(sig_policy_identifier)
             etree.SubElement(
                 sig_policy_hash,
-                etree.QName(xmlsec.constants.DSigNs, 'DigestValue')
+                etree.QName(xmlsig.constants.DSigNs, 'DigestValue')
             ).text = base64.b64encode(hashlib.sha1(remote.read()).digest())
             signer_role = etree.SubElement(
                 signed_signature_properties,
@@ -392,11 +391,8 @@ class AccountInvoice(models.Model):
                 data_object_format,
                 etree.QName(etsi, 'MimeType')
             ).text = 'text/xml'
-            ctx = xmlsec.SignatureContext()
-            ctx.key = xmlsec.Key.from_memory(
-                certificate.export(),
-                format=xmlsec.constants.KeyDataFormatPkcs12
-            )
+            ctx = xmlsig.SignatureContext()
+            ctx.key = certificate
             root.append(sign)
             ctx.sign(sign)
             return etree.tostring(

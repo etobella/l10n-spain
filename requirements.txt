@@ -6,4 +6,3 @@ requests
 xlrd
 pytz
 setuptools
-xmlsec
