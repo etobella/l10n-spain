@@ -249,7 +249,6 @@ class TestL10nEsFacturae(common.TransactionCase):
             False,
             'Error found during verification of the signature of ' +
             'the invoice: %s' % error_message)
-
         motive = 'Description motive'
         refund = self.env['account.invoice.refund'].create(
             {'refund_reason': '01',
