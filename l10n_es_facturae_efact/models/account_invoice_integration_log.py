@@ -176,7 +176,7 @@ class AccountInvoiceIntegration(models.Model):
         path = sftp.normalize('.')
         sftp.chdir(path + statout_path)
         attrs = sftp.listdir_attr('.')
-        attrs.sort(key=lambda attr: attr.st_atime)
+        attrs.sort(key=lambda attr: -attr.st_atime)
         for attr in attrs:
             file = sftp.open(attr.filename)
             filetext = file.read()
